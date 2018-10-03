@@ -5,7 +5,7 @@ Makefile included, (however an executable 'multi-lookup' is already provided).
 I didn't include a multi-lookup.h, oops.
 
 To use the program:
-./multi-lookup <# parsing threads> <# conversion threads> <*parsing log> <*output file> [* <datafile> ...]
+./multi-lookup <# parsing threads> <# conversion threads> \<parsing log\> \<output file\> \[\<datafile\> ...\]
   
 Right now the program forces you to use 1 parsing thread and 1 conversion thread.
 Parsing log doesn't matter at this point, the argument won't be used by the program.
