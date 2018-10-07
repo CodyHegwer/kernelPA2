@@ -94,6 +94,7 @@ void *parsing(void *parlog_fp){
 	pthread_mutex_unlock( &par_log_mutex );
 
 	printf("Parsing thread %d serviced %d files. Thread exiting.\n", thread_no, files_served);
+	free(line);
 	pthread_exit(0);
 	return NULL;
 }
