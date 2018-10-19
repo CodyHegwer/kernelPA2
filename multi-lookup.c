@@ -30,8 +30,9 @@ void *parsing(void *parlog_fp){
 	
 	char filename[MAX_NAME_LENGTH];
 	FILE * fp;
-	char * line = NULL;
-	size_t len = 0;
+	char line[2000];
+	char * linep = line;
+	size_t len = sizeof(line);
 	ssize_t read;
 	int files_served = 0;
 	int written = 0; // boolean, 1 means successfully wrote to buffer, 0 means still trying to write to buffer.
@@ -62,7 +63,7 @@ void *parsing(void *parlog_fp){
 		fp = fopen(filename, "r");
 	
 		if (fp != NULL){
-			while ((read = getline(&line, &len, fp)) != -1) {
+			while ((read = getline(&linep, &len, fp)) != -1) {
 
 				written = 0;
 				while ( !written ){ 
@@ -79,6 +80,7 @@ void *parsing(void *parlog_fp){
 					}
 
 				}
+				len = sizeof(line);
 			}
 			fclose(fp);
 			files_served++;
@@ -94,7 +96,6 @@ void *parsing(void *parlog_fp){
 	pthread_mutex_unlock( &par_log_mutex );
 
 	printf("Parsing thread %d serviced %d files. Thread exiting.\n", thread_no, files_served);
-	free(line);
 	pthread_exit(0);
 	return NULL;
 }
@@ -136,11 +137,11 @@ void *convert(void *fp){
 		pthread_mutex_unlock( &buffer_mutex );
 
 		if (copied) {
+			printf("Thread [%d]: Searching IP for %s", thread_no, tempstr);
+			err = dnslookup( strtok( tempstr, "\n"),  tempIP , MAX_IP_LENGTH );
 
 			pthread_mutex_lock( &output_file_mutex );
-			printf("Searching IP for %s", tempstr);
-			err = dnslookup( strtok( tempstr, "\n"), tempIP , MAX_IP_LENGTH );
-
+		
 			if (err != 0){
 				printf("'%s' is an invalid domain name.\n", strtok(tempstr, "\n"));
 			}
@@ -183,6 +184,8 @@ int main(int argc, char* argv[]){
 	FILE * parlog_fp; // parsing log file pointer
 	FILE * output_fp; // output file pointer
 	void *status;
+
+	setbuf(stdout, NULL);
 
 	if (argc < 6){
 		printf ("Missing parameters\n");
